@@ -545,6 +545,9 @@ static inline CGFloat mgEaseInOutBounce(CGFloat t, CGFloat b, CGFloat c) {
     
     UIView * _swipeOverlay;
     UIImageView * _swipeView;
+    UIImageView * _leftSwipeView;
+    UIImageView * _rightSwipeView;
+    
     UIView * _swipeContentView;
     MGSwipeButtonsView * _leftView;
     MGSwipeButtonsView * _rightView;
@@ -695,11 +698,27 @@ static inline CGFloat mgEaseInOutBounce(CGFloat t, CGFloat b, CGFloat c) {
         _swipeOverlay.hidden = YES;
         _swipeOverlay.backgroundColor = [self backgroundColorForSwipe];
         _swipeOverlay.layer.zPosition = 10; //force render on top of the contentView;
+        
         _swipeView = [[UIImageView alloc] initWithFrame:_swipeOverlay.bounds];
         _swipeView.autoresizingMask =  UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         _swipeView.contentMode = UIViewContentModeCenter;
         _swipeView.clipsToBounds = YES;
+        
+        _leftSwipeView = [[UIImageView alloc] initWithFrame:_swipeOverlay.bounds];
+        _leftSwipeView.autoresizingMask =  UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        _leftSwipeView.contentMode = UIViewContentModeCenter;
+        _leftSwipeView.clipsToBounds = YES;
+        
+        _rightSwipeView = [[UIImageView alloc] initWithFrame:_swipeOverlay.bounds];
+        _rightSwipeView.autoresizingMask =  UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        _rightSwipeView.contentMode = UIViewContentModeCenter;
+        _rightSwipeView.clipsToBounds = YES;
+        
         [_swipeOverlay addSubview:_swipeView];
+        [_swipeOverlay addSubview:_leftSwipeView];
+        [_swipeOverlay addSubview:_rightSwipeView];
+        
+        
         [self.contentView addSubview:_swipeOverlay];
     }
     
@@ -736,6 +755,8 @@ static inline CGFloat mgEaseInOutBounce(CGFloat t, CGFloat b, CGFloat c) {
         [_delegate swipeTableCellWillBeginSwiping:self];
     }
     _swipeView.image = [self imageFromView:self];
+    _leftSwipeView.image = [self imageFromView:_leftCellView];
+    _rightSwipeView.image = [self imageFromView:_rightCellView];
     _swipeOverlay.hidden = NO;
     if (_swipeContentView)
         [_swipeView addSubview:_swipeContentView];
@@ -883,6 +904,9 @@ static inline CGFloat mgEaseInOutBounce(CGFloat t, CGFloat b, CGFloat c) {
 #pragma mark Some utility methods
 
 - (UIImage *)imageFromView:(UIView *)view {
+    if (view == nil) {
+        return [UIImage new];
+    }
     UIGraphicsBeginImageContextWithOptions(view.bounds.size, NO, [[UIScreen mainScreen] scale]);
     [view.layer renderInContext:UIGraphicsGetCurrentContext()];
     UIImage * image = UIGraphicsGetImageFromCurrentImageContext();
@@ -994,7 +1018,10 @@ static inline CGFloat mgEaseInOutBounce(CGFloat t, CGFloat b, CGFloat c) {
     }
     
     BOOL onlyButtons = activeSettings.onlySwipeButtons;
-    _swipeView.transform = CGAffineTransformMakeTranslation(onlyButtons ? 0 : _swipeOffset, 0);
+    // TODO: split swipeView into a leftSwipeView and a rightSwipeView
+    //    _leftSwipeView.backgroundColor = [UIColor redColor];
+    _leftSwipeView.transform = CGAffineTransformMakeTranslation(onlyButtons ? 0 : _swipeOffset, 0);
+    //_swipeView.transform = CGAffineTransformMakeTranslation(onlyButtons ? 0 : _swipeOffset, 0);
     
     //animate existing buttons
     MGSwipeButtonsView* but[2] = {_leftView, _rightView};
