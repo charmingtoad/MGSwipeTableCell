@@ -230,6 +230,7 @@
     if (_expandedButton) {
         _expandedButtonAnimated = _expandedButton;
         if (_expansionBackgroundAnimated && _expansionBackgroundAnimated != _expansionBackground) {
+            NSLog(@"removing expansion background");
             [_expansionBackgroundAnimated removeFromSuperview];
         }
         _expansionBackgroundAnimated = _expansionBackground;
@@ -239,6 +240,7 @@
             _expansionBackgroundAnimated.backgroundColor = _backgroundColorCopy;
             _expandedButtonAnimated.backgroundColor = _backgroundColorCopy;
             _backgroundColorCopy = nil;
+            NSLog(@"background color copy");
         }
         CGFloat duration = _fromLeft ? _cell.leftExpansion.animationDuration : _cell.rightExpansion.animationDuration;
         [UIView animateWithDuration: animated ? duration : 0.0 delay:0 options:UIViewAnimationOptionBeginFromCurrentState animations:^{
@@ -250,6 +252,7 @@
             _expansionBackgroundAnimated.frame = [self expansionBackgroundRect:_expandedButtonAnimated];
         } completion:^(BOOL finished) {
             [_expansionBackgroundAnimated removeFromSuperview];
+            NSLog(@"removing expansion background");
         }];
     }
     else if (_expansionBackground) {
@@ -673,7 +676,7 @@ static inline CGFloat mgEaseInOutBounce(CGFloat t, CGFloat b, CGFloat c) {
         CGSize prevSize = _swipeView.bounds.size;
         _swipeOverlay.frame = CGRectMake(0, 0, self.bounds.size.width, self.contentView.bounds.size.height);
         [self fixRegionAndAccesoryViews];
-        if (_swipeView.image &&  !CGSizeEqualToSize(prevSize, _swipeOverlay.bounds.size)) {
+        if ((_swipeView.image || _leftSwipeView.image || _rightSwipeView.image) &&  !CGSizeEqualToSize(prevSize, _swipeOverlay.bounds.size)) {
             //refresh contentView in situations like layout change, orientation chage, table resize, etc.
             [self refreshContentView];
         }
@@ -754,7 +757,10 @@ static inline CGFloat mgEaseInOutBounce(CGFloat t, CGFloat b, CGFloat c) {
     if (_delegate && [_delegate respondsToSelector:@selector(swipeTableCellWillBeginSwiping:)]) {
         [_delegate swipeTableCellWillBeginSwiping:self];
     }
-    _swipeView.image = [self imageFromView:self];
+    
+    if (_leftCellView == nil && _rightCellView == nil) {
+        _swipeView.image = [self imageFromView:self];
+    }
     _leftSwipeView.image = [self imageFromView:_leftCellView];
     _rightSwipeView.image = [self imageFromView:_rightCellView];
     _swipeOverlay.hidden = NO;
@@ -1018,10 +1024,14 @@ static inline CGFloat mgEaseInOutBounce(CGFloat t, CGFloat b, CGFloat c) {
     }
     
     BOOL onlyButtons = activeSettings.onlySwipeButtons;
-    // TODO: split swipeView into a leftSwipeView and a rightSwipeView
-    //    _leftSwipeView.backgroundColor = [UIColor redColor];
-    _leftSwipeView.transform = CGAffineTransformMakeTranslation(onlyButtons ? 0 : _swipeOffset, 0);
-    //_swipeView.transform = CGAffineTransformMakeTranslation(onlyButtons ? 0 : _swipeOffset, 0);
+
+    if (_swipeOffset > 0) {
+        _leftSwipeView.transform = CGAffineTransformMakeTranslation(onlyButtons ? 0 : _swipeOffset, 0);
+    }
+    else {
+        _rightSwipeView.transform = CGAffineTransformMakeTranslation(onlyButtons ? 0 : _swipeOffset, 0);
+    }
+    _swipeView.transform = CGAffineTransformMakeTranslation(onlyButtons ? 0 : _swipeOffset, 0);
     
     //animate existing buttons
     MGSwipeButtonsView* but[2] = {_leftView, _rightView};
