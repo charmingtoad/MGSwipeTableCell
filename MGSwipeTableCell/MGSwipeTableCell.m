@@ -721,7 +721,6 @@ static inline CGFloat mgEaseInOutBounce(CGFloat t, CGFloat b, CGFloat c) {
         [_swipeOverlay addSubview:_leftSwipeView];
         [_swipeOverlay addSubview:_rightSwipeView];
         
-        
         [self.contentView addSubview:_swipeOverlay];
     }
     
@@ -932,7 +931,7 @@ static inline CGFloat mgEaseInOutBounce(CGFloat t, CGFloat b, CGFloat c) {
     }
     
     for (UIView * view in self.contentView.subviews) {
-        if (view == _swipeOverlay || view == _swipeContentView) continue;
+        if (view == _swipeOverlay || view == _swipeContentView || view == _stationaryView) continue;
         if (hidden && !view.hidden) {
             view.hidden = YES;
             [_previusHiddenViews addObject:view];
