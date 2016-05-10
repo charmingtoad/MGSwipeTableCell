@@ -1350,6 +1350,14 @@ static inline CGFloat mgEaseInOutBounce(CGFloat t, CGFloat b, CGFloat c) {
     return YES;
 }
 
+-(BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
+    CGPoint location = [touch locationInView:self.contentView];
+    UIView *hit = [self.contentView hitTest:location withEvent:nil];
+    
+    // Prioritize UIControls receiving touches over pan gesture recognizer.
+    return ![hit isKindOfClass:[UIControl class]];
+}
+
 -(BOOL) isSwipeGestureActive
 {
     return _panRecognizer.state == UIGestureRecognizerStateBegan || _panRecognizer.state == UIGestureRecognizerStateChanged;
